@@ -1,8 +1,10 @@
+var uidNum = 0;
 (function() {
 function Asteroids() {
 	if ( ! window.ASTEROIDS )
 		window.ASTEROIDS = {
-			enemiesKilled: 0
+			enemiesKilled: 0,
+			deadStyles: {}
 		};
 	
 	/*
@@ -657,7 +659,7 @@ function Asteroids() {
 			right = "10px";
 			textAlign = "right";
 		}
-		this.navigation.innerHTML = "(press esc to quit) ";
+		this.navigation.innerHTML = "(press esc to quit) <br />\n<input type=\"submit\" value=\"Reset\" onclick=\"window.ASTEROIDS.resurrect()\" />";
 		this.gameContainer.appendChild(this.navigation);
 		
 		// points
@@ -1037,7 +1039,13 @@ function Asteroids() {
 					if ( this.dying[i].parentNode )
 						window.ASTEROIDS.enemiesKilled++;
 
-					this.dying[i].parentNode.removeChild(this.dying[i]);
+//					this.dying[i].parentNode.removeChild(this.dying[i]);
+					if(!(this.dying[i].id)){
+						this.dying[i].id = "uid_" + uidNum;
+						uidNum++;
+					}
+					window.ASTEROIDS.deadStyles[this.dying[i].id] = this.dying[i].style.display;
+					this.dying[i].style.display = "none";
 				} catch ( e ) {}
 			}
 
@@ -1120,6 +1128,7 @@ function Asteroids() {
 	};
 }
 
+
 if ( ! window.ASTEROIDSPLAYERS )
 	window.ASTEROIDSPLAYERS = [];
 
@@ -1143,5 +1152,16 @@ if ( window.ActiveXObject && ! document.createElement('canvas').getContext ) {
 	document.getElementsByTagName('head')[0].appendChild(script);
 }
 else window.ASTEROIDSPLAYERS[window.ASTEROIDSPLAYERS.length] = new Asteroids();
+
+window.ASTEROIDS.resurrect = function() {
+        var i;
+        var wad = window.ASTEROIDS.deadStyles;
+        for(i in wad){
+		console.log([i, wad[i]]);
+                document.getElementById(i).style.display = wad[i];
+        }
+	window.ASTEROIDS.deadStyles = {};
+};
+
 
 })();
