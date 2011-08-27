@@ -20,6 +20,7 @@
 	3. This notice may not be removed or altered from any source
 	distribution.
 */
+var uid = 0;
 
 (function() {
 	/*
@@ -398,6 +399,9 @@
 			
 			// A map of keys that are pressed
 			this.keyMap = {};
+
+			// Record of deleted elements
+			this.deadStyles = {};
 			
 			// Bind global events
 			this.keydownEvent = bind(this, this.keydown);
@@ -649,6 +653,14 @@
 			
 			// Stop game timer
 			clearInterval(this.loopTimer);
+		},
+		resurrect: function(){
+			var ds = this.deadStyles;
+			var i;
+			for(i in ds){
+				document.getElementById(i).style.display = ds[i];
+			}
+			this.menuManager.resetPoints();
 		}
 	});
 	
@@ -686,6 +698,14 @@
 			this.points.style.fontSize = '30pt';
 			this.points.innerHTML = this.numPoints;
 			this.container.appendChild(this.points);
+
+			// Reset button
+			this.reset = document.createElement('input');
+                        this.reset.className = 'KICKASSELEMENT';
+			this.reset.type = "submit";
+			this.reset.value = "Reset";
+			this.reset.onclick = function(){window.KICKASSGAME.resurrect()};
+			this.container.appendChild(this.reset);
 			
 			// Esc to quit text
 			this.escToQuit = document.createElement('div');
@@ -695,6 +715,7 @@
 			
 			this.game.registerElement(this.container);
 			this.game.registerElement(this.points);
+                        this.game.registerElement(this.reset);
 			this.game.registerElement(this.escToQuit);
 		},
 		
@@ -710,6 +731,11 @@
 		
 		addPoints: function(killed) {
 			this.numPoints += killed*10;
+			this.points.innerHTML = this.numPoints;
+		},
+		
+		resetPoints: function(){
+			this.numPoints = 0;
 			this.points.innerHTML = this.numPoints;
 		},
 		
@@ -986,8 +1012,10 @@
 					if ( hit ) {
 						this.game.explosionManager.addExplosion(bullet.pos);
 						this.game.menuManager.addPoints(hit.getElementsByTagName('*').length + 1);
-						
-						hit.parentNode.removeChild(hit);
+                                                if(!(hit.id)){hit.id = "uid_" + uid; uid++}
+						window.KICKASSGAME.deadStyles[hit.id] = hit.style.display;
+						hit.style.display = "none";
+//						hit.parentNode.removeChild(hit);
 						
 						bullet.destroy();
 						this.bullets[key].splice(i, 1);
