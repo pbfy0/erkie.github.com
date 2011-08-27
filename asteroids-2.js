@@ -653,6 +653,7 @@ var uid = 0;
 			
 			// Stop game timer
 			clearInterval(this.loopTimer);
+			window.KICKASSGAME = undefined;
 		},
 		resurrect: function(){
 			var ds = this.deadStyles;
